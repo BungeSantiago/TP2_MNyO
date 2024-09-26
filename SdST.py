@@ -14,6 +14,22 @@ def filter_year(country, year):
 def filter_month(country, month):
     return country[country['Month'] == month]
 
+def clean_info(country):
+    country.drop('State', axis=1, inplace=True)
+    country.drop('Region', axis=1, inplace=True)
+
+def days_to_weeks(country):
+    weeks_temperatures = []
+    week_temperature = []
+    for i in range(len(country['AvgTemperature'])):
+        week_temperature.append(float(country['AvgTemperature'].iloc[i]))
+        if (i + 1) % 7 == 0:
+            weeks_temperatures.append(np.average(week_temperature))
+            week_temperature = []
+    if len(week_temperature) > 0:
+        weeks_temperatures.append(np.average(week_temperature))
+    return np.array(weeks_temperatures)
+
 def foward_diff(country):
     return np.diff(country['AvgTemperature'])/ np.diff(np.arrange(len(country['AvgTemperature'])))
 
@@ -45,19 +61,27 @@ def eucledean_distance(series1, series2):
 Argentina = filter_country('Argentina')
 Argentina_1995 = filter_year(Argentina, 1995)
 daysarg = np.arange(1, len(Argentina_1995) + 1)
+clean_info(Argentina_1995)
+temperature_in_weeks = np.array(days_to_weeks(Argentina_1995))
 interpolArg = spi.interp1d(daysarg, Argentina_1995['AvgTemperature'], kind='linear')
+
+
 Austria = filter_country('Austria')
 Austria_1995 = filter_year(Austria, 1995)
 daysaut = np.arange(1, len(Austria_1995) + 1)
+clean_info(Austria_1995)
+temperature_in_weeks_aut = np.array(days_to_weeks(Austria_1995))
 interpolAut = spi.interp1d(daysaut, Austria_1995['AvgTemperature'], kind='linear')
 
 normArg = rate_of_change_normalized(Argentina_1995['AvgTemperature'])
 normAut = rate_of_change_normalized(Austria_1995['AvgTemperature'])
+
 similarity = cosine_similarity(normArg, normAut)
 eulidean = eucledean_distance(normArg, normAut)
 
 print('Similarity:', similarity)
 print('Eucledean:', eulidean)
+
 plt.plot(daysarg, interpolArg(daysarg), 'r-', label='Interpolated')
 plt.plot(daysarg, interpolAut(daysarg), 'b-', label='Interpolated')
 plt.xlabel('Days')
