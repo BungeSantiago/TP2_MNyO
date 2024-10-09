@@ -68,6 +68,14 @@ def analisis(series):
         semanas_extremos.append((semana, tipo))
   return semanas_extremos
 
+def similaritud(country1, country2):
+    if len(country1) == len(country2):
+      equal_weeks = 0
+      for i in range(len(country1)):
+        if country1[i][1] == country2[i][1]:
+          equal_weeks += 1
+      return equal_weeks / len(country1)
+
 def foward_diff(country):
     return np.diff(country['AvgTemperature']) / np.diff(np.arange(len(country['AvgTemperature'])))
 
@@ -127,8 +135,11 @@ b= cambio_de_signo(temperature_in_weeks_aut)
 print('Weeks with zero derivative:', b)
 
 #semanas analisadas
-print('weeks analised:', analisis(temperature_in_weeks_arg))
-print('weeks analised:', analisis(temperature_in_weeks_aut))
+aa = analisis(temperature_in_weeks_arg)
+print('weeks analised:', aa)
+bb = analisis(temperature_in_weeks_aut)
+print('weeks analised:', bb)
+print('Similaridad:', similaritud(aa, bb))
 
 # Gráfico de temperaturas promedio semanales
 plt.plot(np.arange(1, len(temperature_in_weeks_arg) + 1), temperature_in_weeks_arg, 'r-', label='Argentina')
