@@ -30,6 +30,44 @@ def days_to_weeks(country):
         weeks_temperatures.append(np.average(week_temperature))
     return np.array(weeks_temperatures)
 
+def zero_derivative_weeks(country):
+    derivatives = np.diff(country['AvgTemperature'])
+    zero_derivative_weeks = [i + 1 for i, deriv in enumerate(derivatives) if deriv == 0]
+    return zero_derivative_weeks
+
+def cambio_de_signo(series):
+  derivada = np.diff(series)
+  semanas_extremos = []
+  for i in range(len(derivada) - 1):
+      if derivada[i] * derivada[i + 1] < 0:  # Cambio de signo
+          semana = i + 2 
+          if derivada[i] > 0 and derivada[i + 1] < 0:
+              tipo = 'subio'
+          elif derivada[i] < 0 and derivada[i + 1] > 0:
+              tipo = 'bajo'
+          semanas_extremos.append((semana, tipo))
+  return semanas_extremos
+
+def analisis(series):
+  derivada = np.diff(series)
+  semanas_extremos = []
+  for i in range(len(derivada) - 1):
+      if derivada[i] * derivada[i + 1] < 0:  # Cambio de signo
+          semana = i + 2 
+          if derivada[i] > 0 and derivada[i + 1] < 0:
+              tipo = 'subio'
+          elif derivada[i] < 0 and derivada[i + 1] > 0:
+              tipo = 'bajo'
+          semanas_extremos.append((semana, tipo))
+      else:
+        semana = i + 2
+        if derivada[i] > 0:
+            tipo = 'subio'
+        else:
+            tipo = 'bajo'
+        semanas_extremos.append((semana, tipo))
+  return semanas_extremos
+
 def foward_diff(country):
     return np.diff(country['AvgTemperature']) / np.diff(np.arange(len(country['AvgTemperature'])))
 
@@ -70,16 +108,27 @@ days_normArg = rate_of_change_normalized(Argentina_1995['AvgTemperature'])
 days_normAut = rate_of_change_normalized(Austria_1995['AvgTemperature'])
 days_similarity = cosine_similarity(days_normArg, days_normAut)
 days_euclidean = euclidean_distance(days_normArg, days_normAut)
-print('Similarity per days:', days_similarity)
-print('Euclidean per days:', days_euclidean)
+#print('Similarity per days:', days_similarity)
+#print('Euclidean per days:', days_euclidean)
 
 # Comparación por semanas
 weeks_normArg = rate_of_change_normalized(temperature_in_weeks_arg)
 weeks_normAut = rate_of_change_normalized(temperature_in_weeks_aut)
 weeks_similarity = cosine_similarity(weeks_normArg, weeks_normAut)
 weeks_euclidean = euclidean_distance(weeks_normArg, weeks_normAut)
-print('Similarity per weeks:', weeks_similarity)
-print('Euclidean per weeks:', weeks_euclidean)
+#print('Similarity per weeks:', weeks_similarity)
+#print('Euclidean per weeks:', weeks_euclidean)
+
+
+#semanas con derivada = 0
+a= cambio_de_signo(temperature_in_weeks_arg)
+print('Weeks with zero derivative:', a)
+b= cambio_de_signo(temperature_in_weeks_aut)
+print('Weeks with zero derivative:', b)
+
+#semanas analisadas
+print('weeks analised:', analisis(temperature_in_weeks_arg))
+print('weeks analised:', analisis(temperature_in_weeks_aut))
 
 # Gráfico de temperaturas promedio semanales
 plt.plot(np.arange(1, len(temperature_in_weeks_arg) + 1), temperature_in_weeks_arg, 'r-', label='Argentina')
