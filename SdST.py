@@ -48,7 +48,55 @@ def cambio_de_signo(series):
             semanas_extremos.append((semana, tipo))
     return semanas_extremos
 
-def analisis(series):
+def analisis_diff(series):
+    derivada = np.diff(series)
+    semanas_extremos = []
+    for i in range(len(derivada) - 1):
+        if derivada[i] * derivada[i + 1] < 0:  # Cambio de signo
+            semana = i + 2 
+            if derivada[i] > 0 and derivada[i + 1] < 0:
+                tipo = 'subio'
+            elif derivada[i] < 0 and derivada[i + 1] > 0:
+                tipo = 'bajo'
+            semanas_extremos.append((semana, tipo))
+        else:
+            semana = i + 2
+            if derivada[i] > 0:
+                tipo = 'subio'
+            else:
+                tipo = 'bajo'
+            semanas_extremos.append((semana, tipo))
+    return semanas_extremos
+
+# Función para calcular derivada usando diferencias centradas
+def diferencias_centradas(series):
+    derivada = np.zeros(len(series) - 2)  # Como se usa centrada, el tamaño será len(series) - 2
+    for i in range(1, len(series) - 1):   # Comienza en el segundo elemento y termina en el penúltimo
+        derivada[i - 1] = (series[i + 1] - series[i - 1]) / 2
+    return derivada
+
+def analisis_diff_cent(series):
+    derivada = diferencias_centradas(series)  # Calcular derivada usando diferencias centradas
+    semanas_extremos = []
+    for i in range(len(derivada) - 1):
+        if derivada[i] * derivada[i + 1] < 0:  # Cambio de signo
+            semana = i + 2  # Ajustar el índice por el uso de diferencias centradas
+            if derivada[i] > 0 and derivada[i + 1] < 0:
+                tipo = 'subio'  # Máximo local
+            elif derivada[i] < 0 and derivada[i + 1] > 0:
+                tipo = 'bajo'  # Mínimo local
+            semanas_extremos.append((semana, tipo))
+        else:
+            semana = i + 2
+            if derivada[i] > 0:
+                tipo = 'subio'
+            else:
+                tipo = 'bajo'
+            semanas_extremos.append((semana, tipo))
+    return semanas_extremos
+
+#funcion diff finita
+def analisis_diff(series):
     derivada = np.diff(series)
     semanas_extremos = []
     for i in range(len(derivada) - 1):
@@ -130,16 +178,23 @@ interpolAut = spi.interp1d(daysaut, Austria_1995['AvgTemperature'], kind='linear
 
 #semanas con derivada = 0
 a= cambio_de_signo(temperature_in_weeks_arg)
-print('Weeks with zero derivative:', a)
+#print('Weeks with zero derivative:', a)
 b= cambio_de_signo(temperature_in_weeks_aut)
-print('Weeks with zero derivative:', b)
+#print('Weeks with zero derivative:', b)
 
-#semanas analisadas
-aa = analisis(temperature_in_weeks_arg)
-print('weeks analised:', aa)
-bb = analisis(temperature_in_weeks_aut)
-print('weeks analised:', bb)
-print('Similaridad:', similaritud(aa, bb))
+#semanas analisadas diferenciacion finita
+aa = analisis_diff(temperature_in_weeks_arg)
+#print('weeks analised:', aa)
+bb = analisis_diff(temperature_in_weeks_aut)
+#print('weeks analised:', bb)
+print('Similaridad con Diferenciacion:', similaritud(aa, bb))
+
+#semanas analisadas diferenciacion centrada
+aaa = analisis_diff_cent(temperature_in_weeks_arg)
+print('weeks analised:', aaa)
+bbb = analisis_diff_cent(temperature_in_weeks_aut)
+print('weeks analised:', bbb)
+print('Similaridad con Diferenciacion centrada:', similaritud(aaa, bbb))
 
 # Gráfico de temperaturas promedio semanales
 plt.plot(np.arange(1, len(temperature_in_weeks_arg) + 1), temperature_in_weeks_arg, 'r-', label='Argentina')
