@@ -36,62 +36,62 @@ def zero_derivative_weeks(country):
     return zero_derivative_weeks
 
 def cambio_de_signo(series):
-  derivada = np.diff(series)
-  semanas_extremos = []
-  for i in range(len(derivada) - 1):
-      if derivada[i] * derivada[i + 1] < 0:  # Cambio de signo
-          semana = i + 2 
-          if derivada[i] > 0 and derivada[i + 1] < 0:
-              tipo = 'subio'
-          elif derivada[i] < 0 and derivada[i + 1] > 0:
-              tipo = 'bajo'
-          semanas_extremos.append((semana, tipo))
-  return semanas_extremos
+    derivada = np.diff(series)
+    semanas_extremos = []
+    for i in range(len(derivada) - 1):
+        if derivada[i] * derivada[i + 1] < 0:  # Cambio de signo
+            semana = i + 2 
+            if derivada[i] > 0 and derivada[i + 1] < 0:
+                tipo = 'subio'
+            elif derivada[i] < 0 and derivada[i + 1] > 0:
+                tipo = 'bajo'
+            semanas_extremos.append((semana, tipo))
+    return semanas_extremos
 
 def analisis(series):
-  derivada = np.diff(series)
-  semanas_extremos = []
-  for i in range(len(derivada) - 1):
-      if derivada[i] * derivada[i + 1] < 0:  # Cambio de signo
-          semana = i + 2 
-          if derivada[i] > 0 and derivada[i + 1] < 0:
-              tipo = 'subio'
-          elif derivada[i] < 0 and derivada[i + 1] > 0:
-              tipo = 'bajo'
-          semanas_extremos.append((semana, tipo))
-      else:
-        semana = i + 2
-        if derivada[i] > 0:
-            tipo = 'subio'
+    derivada = np.diff(series)
+    semanas_extremos = []
+    for i in range(len(derivada) - 1):
+        if derivada[i] * derivada[i + 1] < 0:  # Cambio de signo
+            semana = i + 2 
+            if derivada[i] > 0 and derivada[i + 1] < 0:
+                tipo = 'subio'
+            elif derivada[i] < 0 and derivada[i + 1] > 0:
+                tipo = 'bajo'
+            semanas_extremos.append((semana, tipo))
         else:
-            tipo = 'bajo'
-        semanas_extremos.append((semana, tipo))
-  return semanas_extremos
+            semana = i + 2
+            if derivada[i] > 0:
+                tipo = 'subio'
+            else:
+                tipo = 'bajo'
+            semanas_extremos.append((semana, tipo))
+    return semanas_extremos
 
 def similaritud(country1, country2):
     if len(country1) == len(country2):
-      equal_weeks = 0
-      for i in range(len(country1)):
-        if country1[i][1] == country2[i][1]:
-          equal_weeks += 1
-      return equal_weeks / len(country1)
+        equal_weeks = 0
+        for i in range(len(country1)):
+            if country1[i][1] == country2[i][1]:
+                equal_weeks += 1
+    return equal_weeks / len(country1)
 
-def foward_diff(country):
-    return np.diff(country['AvgTemperature']) / np.diff(np.arange(len(country['AvgTemperature'])))
+# def foward_diff(country):
+#     return np.diff(country['AvgTemperature']) / np.diff(np.arange(len(country['AvgTemperature'])))
 
-def rate_of_change_normalized(series):
-    diffs = np.diff(series)
-    normalized_changes = diffs / np.abs(series[:-1])
-    return normalized_changes
+# def rate_of_change_normalized(series):
+#     diffs = np.diff(series)
+#     normalized_changes = diffs / np.abs(series[:-1])
+#     return normalized_changes
 
-def cosine_similarity(series1, series2):
-    dot_product = np.dot(series1, series2)
-    norm1 = np.linalg.norm(series1)
-    norm2 = np.linalg.norm(series2)
-    return dot_product / (norm1 * norm2)
+# def cosine_similarity(series1, series2):
+#     dot_product = np.dot(series1, series2)
+#     norm1 = np.linalg.norm(series1)
+#     norm2 = np.linalg.norm(series2)
+#     return dot_product / (norm1 * norm2)
 
-def euclidean_distance(series1, series2):
-    return np.linalg.norm(series1 - series2)
+# def euclidean_distance(series1, series2):
+#     return np.linalg.norm(series1 - series2)
 
 # Obtener la información relevante de Argentina
 Argentina = filter_country('Argentina')
@@ -111,21 +111,21 @@ Austria_1995 = Austria_1995.dropna(subset=['AvgTemperature'])  # Eliminar valore
 temperature_in_weeks_aut = np.array(days_to_weeks(Austria_1995))
 interpolAut = spi.interp1d(daysaut, Austria_1995['AvgTemperature'], kind='linear')
 
-# Comparación por días
-days_normArg = rate_of_change_normalized(Argentina_1995['AvgTemperature'])
-days_normAut = rate_of_change_normalized(Austria_1995['AvgTemperature'])
-days_similarity = cosine_similarity(days_normArg, days_normAut)
-days_euclidean = euclidean_distance(days_normArg, days_normAut)
-#print('Similarity per days:', days_similarity)
-#print('Euclidean per days:', days_euclidean)
+# # Comparación por días
+# days_normArg = rate_of_change_normalized(Argentina_1995['AvgTemperature'])
+# days_normAut = rate_of_change_normalized(Austria_1995['AvgTemperature'])
+# days_similarity = cosine_similarity(days_normArg, days_normAut)
+# days_euclidean = euclidean_distance(days_normArg, days_normAut)
+# #print('Similarity per days:', days_similarity)
+# #print('Euclidean per days:', days_euclidean)
 
-# Comparación por semanas
-weeks_normArg = rate_of_change_normalized(temperature_in_weeks_arg)
-weeks_normAut = rate_of_change_normalized(temperature_in_weeks_aut)
-weeks_similarity = cosine_similarity(weeks_normArg, weeks_normAut)
-weeks_euclidean = euclidean_distance(weeks_normArg, weeks_normAut)
-#print('Similarity per weeks:', weeks_similarity)
-#print('Euclidean per weeks:', weeks_euclidean)
+# # Comparación por semanas
+# weeks_normArg = rate_of_change_normalized(temperature_in_weeks_arg)
+# weeks_normAut = rate_of_change_normalized(temperature_in_weeks_aut)
+# weeks_similarity = cosine_similarity(weeks_normArg, weeks_normAut)
+# weeks_euclidean = euclidean_distance(weeks_normArg, weeks_normAut)
+# #print('Similarity per weeks:', weeks_similarity)
+# #print('Euclidean per weeks:', weeks_euclidean)   
 
 
 #semanas con derivada = 0
